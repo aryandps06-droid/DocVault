@@ -121,11 +121,14 @@ Departments | DocVault
 
             </div>
 
-            <span class="badge bg-primary">
-
-                {{ dept.code }}
-
-            </span>
+            <div class="text-end">
+                <span class="badge bg-primary d-block mb-1">
+                    {{ dept.code }}
+                </span>
+                <span class="badge bg-secondary" style="font-size: 0.7rem; opacity: 0.85;">
+                    {{ dept.get_type_display }}
+                </span>
+            </div>
 
         </div>
 
@@ -295,6 +298,18 @@ Departments | DocVault
                     <div class="mb-3">
                         <label class="form-label text-muted">Description (Optional)</label>
                         <textarea name="description" class="form-control" rows="3" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); color:#fff;" placeholder="Functions and responsibilities..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted font-weight-bold">Department Type</label>
+                        <select name="type" class="form-select" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); color:#fff;" required>
+                            <option value="OPERATIONS" style="color:#000;">Operations & Mining</option>
+                            <option value="ADMIN" style="color:#000;">Executive & Administration</option>
+                            <option value="TECH" style="color:#000;">Technology & R&D</option>
+                            <option value="SUPPORT" style="color:#000;">Support & Services</option>
+                            <option value="HR" style="color:#000;">Human Resources</option>
+                            <option value="FINANCE" style="color:#000;">Finance & Accounts</option>
+                            <option value="SAFETY" style="color:#000;">Safety & Compliance</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label text-muted">Division Head</label>
