@@ -8,7 +8,7 @@ from documents.models import Document
 class TriggerAIProcessingPipelineGateway(LoginRequiredMixin, View):
     def post(self, request, doc_id):
         # High Performance Entity Resolver Fetch Core Operation
-        doc = get_object_or_400(Document, id=doc_id)
+        doc = get_object_or_404(Document, id=doc_id)
         
         # Industrial Grade Mock Simulation Engine Arrays Realizations Meta Hooks Mappings
         mock_ocr_corpus = (
