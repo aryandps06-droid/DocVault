@@ -17,9 +17,12 @@ User = get_user_model()
 class LoginWorkspaceView(View):
     template_name = "authentication/login.html"
 
-    def get(self, request):
+    def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect("dashboard")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
         return render(request, self.template_name)
 
     def post(self, request):
@@ -50,10 +53,12 @@ class LoginWorkspaceView(View):
 class RegisterWorkspaceView(View):
     template_name = "authentication/register.html"
 
-    def get(self, request):
+    def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect("dashboard")
-            
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
         if "reg_email" in request.session:
             del request.session["reg_email"]
             
@@ -169,10 +174,12 @@ class LogoutWorkspaceView(View):
 class ForgotPasswordView(View):
     template_name = "authentication/forgot_password.html"
 
-    def get(self, request):
+    def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect("dashboard")
-            
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
         if "reset_email" in request.session:
             del request.session["reset_email"]
             
