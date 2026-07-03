@@ -1,0 +1,552 @@
+{% extends 'base.html' %}
+
+{% block title %}KOYLAVAULT AI - Identity Access System Records Matrix Portal Directory{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Header -->
+
+    <div class="glass-panel mb-4">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+
+            <div>
+
+                <h2 class="fw-bold mb-1">
+
+                    <i class="fas fa-users text-primary me-2"></i>
+
+                    Employee Management
+
+                </h2>
+
+                <p class="text-muted mb-0">
+
+                    Manage employees, departments and user roles.
+
+                </p>
+
+            </div>
+
+            <div>
+
+                <input
+                    type="text"
+                    id="searchUser"
+                    class="form-control"
+                    placeholder="Search employee...">
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Statistics -->
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-lg-3">
+
+            <div class="premium-card text-center p-4">
+
+                <i class="fas fa-users fa-2x text-primary mb-3"></i>
+
+                <h2>
+
+                    {{ users_directory|length }}
+
+                </h2>
+
+                <small class="text-muted">
+
+                    Employees
+
+                </small>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-3">
+
+            <div class="premium-card text-center p-4">
+
+                <i class="fas fa-user-shield fa-2x text-success mb-3"></i>
+
+                <h2>
+
+                    {{ admin_count }}
+
+                </h2>
+
+                <small class="text-muted">
+
+                    Administrators
+
+                </small>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-3">
+
+            <div class="premium-card text-center p-4">
+
+                <i class="fas fa-user-tie fa-2x text-warning mb-3"></i>
+
+                <h2>
+
+                    {{ manager_count }}
+
+                </h2>
+
+                <small class="text-muted">
+
+                    Managers
+
+                </small>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-3">
+
+            <div class="premium-card text-center p-4">
+
+                <i class="fas fa-user fa-2x text-danger mb-3"></i>
+
+                <h2>
+
+                    {{ employee_count }}
+
+                </h2>
+
+                <small class="text-muted">
+
+                    Employees
+
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="premium-card">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle" id="usersTable">
+
+                <thead class="table-light">
+
+                <tr>
+
+                    <th></th>
+
+                    <th>Name</th>
+
+                    <th>Email</th>
+
+                    <th>Department</th>
+
+                    <th>Role</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for user in users_directory %}
+
+<tr>
+
+    <!-- Avatar -->
+
+    <td>
+
+        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold"
+
+             style="width:45px;height:45px;font-size:18px;">
+
+            {{ user.username|first|upper }}
+
+        </div>
+
+    </td>
+
+    <!-- Name -->
+
+    <td>
+
+        <strong>
+
+            {{ user.username }}
+
+        </strong>
+
+        <br>
+
+        <small class="text-muted">
+
+            ID : EMP-{{ user.id }}
+
+        </small>
+
+    </td>
+
+    <!-- Email -->
+
+    <td>
+
+        {{ user.email|default:"Not Available" }}
+
+    </td>
+
+    <!-- Department -->
+
+    <td>
+
+        {% if user.department %}
+
+            <span class="badge bg-info">
+
+                {{ user.department.name }}
+
+            </span>
+
+        {% else %}
+
+            <span class="badge bg-secondary">
+
+                General
+
+            </span>
+
+        {% endif %}
+
+    </td>
+
+    <!-- Role -->
+
+    <td>
+
+        {% if user.role == "ADMIN" %}
+
+            <span class="badge bg-danger">
+
+                <i class="fas fa-user-shield me-1"></i>
+
+                Administrator
+
+            </span>
+
+        {% elif user.role == "MANAGER" %}
+
+            <span class="badge bg-warning text-dark">
+
+                <i class="fas fa-user-tie me-1"></i>
+
+                Manager
+
+            </span>
+
+        {% else %}
+
+            <span class="badge bg-success">
+
+                <i class="fas fa-user me-1"></i>
+
+                Employee
+
+            </span>
+
+        {% endif %}
+
+    </td>
+
+    <!-- Action -->
+
+    <td>
+
+        <form
+
+            method="POST"
+
+            action="{% url 'user_role_update' user.id %}"
+
+            class="d-flex gap-2">
+
+            {% csrf_token %}
+
+            <select
+
+                class="form-select form-select-sm"
+
+                name="role">
+
+                <option value="EMPLOYEE"
+
+                    {% if user.role == "EMPLOYEE" %}selected{% endif %}>
+
+                    Employee
+
+                </option>
+
+                <option value="MANAGER"
+
+                    {% if user.role == "MANAGER" %}selected{% endif %}>
+
+                    Manager
+
+                </option>
+
+                <option value="ADMIN"
+
+                    {% if user.role == "ADMIN" %}selected{% endif %}>
+
+                    Administrator
+
+                </option>
+
+            </select>
+
+            <button
+
+                class="btn btn-primary btn-sm">
+
+                <i class="fas fa-save"></i>
+
+            </button>
+
+        </form>
+
+    </td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="6" class="text-center py-5">
+
+<i class="fas fa-users fa-4x text-secondary mb-3"></i>
+
+<h4>
+
+No Employees Found
+
+</h4>
+
+<p class="text-muted">
+
+There are no users available.
+
+</p>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    // ==========================
+    // Search Users
+    // ==========================
+
+    const search=document.getElementById("searchUser");
+
+    if(search){
+
+        search.addEventListener("keyup",function(){
+
+            const value=this.value.toLowerCase();
+
+            document.querySelectorAll("#usersTable tbody tr").forEach(function(row){
+
+                row.style.display=row.innerText.toLowerCase().includes(value)
+                    ? ""
+                    : "none";
+
+            });
+
+        });
+
+    }
+
+    // ==========================
+    // Card Animation
+    // ==========================
+
+    document.querySelectorAll(".premium-card").forEach(function(card,index){
+
+        card.style.opacity="0";
+        card.style.transform="translateY(20px)";
+
+        setTimeout(function(){
+
+            card.style.transition=".45s ease";
+            card.style.opacity="1";
+            card.style.transform="translateY(0px)";
+
+        },index*120);
+
+    });
+
+    // ==========================
+    // Table Row Animation
+    // ==========================
+
+    document.querySelectorAll("#usersTable tbody tr").forEach(function(row,index){
+
+        row.style.opacity="0";
+        row.style.transform="translateX(-15px)";
+
+        setTimeout(function(){
+
+            row.style.transition=".35s";
+            row.style.opacity="1";
+            row.style.transform="translateX(0px)";
+
+        },index*50);
+
+    });
+
+    // ==========================
+    // Hover Effect
+    // ==========================
+
+    document.querySelectorAll("#usersTable tbody tr").forEach(function(row){
+
+        row.addEventListener("mouseenter",function(){
+
+            this.style.background="#f8fafc";
+            this.style.transform="scale(1.01)";
+
+        });
+
+        row.addEventListener("mouseleave",function(){
+
+            this.style.background="";
+            this.style.transform="scale(1)";
+
+        });
+
+    });
+
+});
+
+</script>
+
+<style>
+
+.premium-card{
+
+    transition:.3s ease;
+
+}
+
+.premium-card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:0 20px 40px rgba(0,0,0,.12);
+
+}
+
+.table{
+
+    margin-bottom:0;
+
+}
+
+.table tbody tr{
+
+    transition:.25s;
+
+}
+
+.table td{
+
+    vertical-align:middle;
+
+}
+
+.badge{
+
+    font-size:.8rem;
+
+    padding:.45rem .8rem;
+
+}
+
+.btn{
+
+    border-radius:10px;
+
+}
+
+.form-select{
+
+    min-width:150px;
+
+}
+
+.rounded-circle{
+
+    box-shadow:0 5px 15px rgba(37,99,235,.25);
+
+}
+
+#searchUser{
+
+    width:260px;
+
+    border-radius:12px;
+
+}
+
+@media(max-width:768px){
+
+    #searchUser{
+
+        width:100%;
+        margin-top:15px;
+
+    }
+
+}
+
+</style>
+
+{% endblock %}

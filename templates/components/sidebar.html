@@ -1,0 +1,100 @@
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar-framework" id="mainSidebar">
+
+  <!-- Logo -->
+  <div class="sidebar-logo-zone">
+    <div class="d-flex align-items-center gap-3">
+      <div class="sidebar-logo-icon">🗄️</div>
+      <div>
+        <div class="sidebar-brand">DocVault</div>
+        <div class="sidebar-brand-sub">AI-POWERED DMS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+
+    <div class="sidebar-section-label mb-2">Main Menu</div>
+
+    <a href="{% url 'dashboard' %}"
+       class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <div class="nav-icon"><i class="fas fa-chart-line"></i></div>
+      <span>Dashboard</span>
+    </a>
+
+    <a href="{% url 'document_list' %}"
+       class="nav-link {% if 'document' in request.path %}active{% endif %}">
+      <div class="nav-icon"><i class="fas fa-folder-open"></i></div>
+      <span>Documents</span>
+    </a>
+
+    <a href="{% url 'department_list' %}"
+       class="nav-link {% if 'department' in request.path %}active{% endif %}">
+      <div class="nav-icon"><i class="fas fa-building"></i></div>
+      <span>Departments</span>
+    </a>
+
+    <a href="{% url 'user_list' %}"
+       class="nav-link {% if 'user' in request.path and 'department' not in request.path %}active{% endif %}">
+      <div class="nav-icon"><i class="fas fa-users"></i></div>
+      <span>Employees</span>
+    </a>
+
+    <a href="{% url 'analytics_summary' %}"
+       class="nav-link {% if 'analytics' in request.path %}active{% endif %}">
+      <div class="nav-icon"><i class="fas fa-chart-pie"></i></div>
+      <span>Analytics</span>
+    </a>
+
+    <hr class="neon-divider my-3">
+    <div class="sidebar-section-label mb-2">System</div>
+
+    <a href="/admin/" class="nav-link" target="_blank">
+      <div class="nav-icon"><i class="fas fa-cog"></i></div>
+      <span>Admin Panel</span>
+      <i class="fas fa-external-link-alt ms-auto" style="font-size:.65rem;opacity:.4;"></i>
+    </a>
+
+  </nav>
+
+  <!-- User Profile -->
+  <div class="sidebar-footer">
+    <div class="sidebar-user-card">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="user-avatar-ring">
+          {{ request.user.username|first|upper }}
+        </div>
+        <div style="overflow:hidden;">
+          <div style="font-weight:600;font-size:.85rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            {{ request.user.get_full_name|default:request.user.username }}
+          </div>
+          <div style="font-size:.72rem;color:#64748B;">{{ request.user.role|default:"Member" }}</div>
+        </div>
+      </div>
+      <a href="{% url 'auth_logout' %}" class="btn-danger-glass">
+        <i class="fas fa-sign-out-alt me-2"></i> Sign Out
+      </a>
+    </div>
+  </div>
+
+</aside>
+
+<script>
+/* Sidebar mobile toggle init */
+const sidebarEl = document.getElementById('mainSidebar');
+window.openSidebar = function() {
+  sidebarEl.classList.add('open');
+  document.dispatchEvent(new Event('sidebarOpen'));
+};
+window.closeSidebar = function() {
+  sidebarEl.classList.remove('open');
+  document.dispatchEvent(new Event('sidebarClose'));
+};
+/* Close on nav link click (mobile) */
+sidebarEl.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    if (window.innerWidth <= 992) closeSidebar();
+  });
+});
+</script>

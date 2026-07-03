@@ -1,0 +1,432 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+Departments | DocVault
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+
+    <div class="glass-panel mb-4">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+
+            <div>
+
+                <h2 class="fw-bold" style="font-family:'Space Grotesk',sans-serif;">
+                    <i class="fas fa-industry text-primary me-2"></i>
+                    BCCL Department Management
+                </h2>
+                <p class="text-muted mb-0">
+                    Manage mining divisions, safety units, and assign department heads for Bharat Coking Coal Limited.
+                </p>
+
+            </div>
+
+            <button
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#createDeptModal">
+
+                <i class="fas fa-plus me-2"></i>
+
+                Add Department
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Statistics -->
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-lg-4">
+
+            <div class="premium-card text-center p-4">
+
+                <i class="fas fa-building fa-2x text-primary mb-3"></i>
+
+                <h2>{{ departments|length }}</h2>
+
+                <small class="text-muted">
+
+                    Total Departments
+
+                </small>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
+
+            <div class="premium-card text-center p-4">
+
+                <i class="fas fa-users fa-2x text-success mb-3"></i>
+
+                <h2>{{ users|length }}</h2>
+
+                <small class="text-muted">
+
+                    Employees
+
+                </small>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
+
+            <div class="premium-card text-center p-4">
+
+                <i class="fas fa-folder-open fa-2x text-warning mb-3"></i>
+
+                <h2>{{ total_documents }}</h2>
+
+                <small class="text-muted">
+
+                    Documents
+
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Department Cards -->
+
+    <div class="row g-4">
+
+        {% for dept in departments %}
+
+<div class="col-lg-4 col-md-6">
+
+    <div class="premium-card p-4 h-100 department-card">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div class="icon-circle bg-primary bg-opacity-10">
+
+                <i class="fas fa-building text-primary"></i>
+
+            </div>
+
+            <span class="badge bg-primary">
+
+                {{ dept.code }}
+
+            </span>
+
+        </div>
+
+        <h4 class="fw-bold mb-2">
+
+            {{ dept.name }}
+
+        </h4>
+
+        <p class="text-muted mb-4">
+
+            {{ dept.description|default:"No description available."|truncatewords:15 }}
+
+        </p>
+
+        <div class="row text-center border-top pt-3">
+
+            <div class="col-4">
+
+                <h5 class="text-primary fw-bold">
+
+                    {{ dept.staff.count }}
+
+                </h5>
+
+                <small class="text-muted">
+
+                    Employees
+
+                </small>
+
+            </div>
+
+            <div class="col-4">
+
+                <h5 class="text-success fw-bold">
+
+                    {{ dept.documents.count }}
+
+                </h5>
+
+                <small class="text-muted">
+
+                    Documents
+
+                </small>
+
+            </div>
+
+            <div class="col-4">
+
+                <h5 class="text-warning fw-bold">
+
+                    {% if dept.head_of_department %}
+                        1
+                    {% else %}
+                        0
+                    {% endif %}
+
+                </h5>
+
+                <small class="text-muted">
+
+                    Manager
+
+                </small>
+
+            </div>
+
+        </div>
+
+        <hr>
+
+        <div class="mb-3">
+
+            <strong>
+
+                Department Head
+
+            </strong>
+
+            <br>
+
+            {% if dept.head_of_department %}
+
+                {{ dept.head_of_department.username }}
+
+            {% else %}
+
+                <span class="text-muted">
+
+                    Not Assigned
+
+                </span>
+
+            {% endif %}
+
+        </div>
+
+        <div class="d-grid">
+
+            <button class="btn btn-outline-primary">
+
+                <i class="fas fa-eye me-2"></i>
+
+                View Details
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% empty %}
+
+<div class="col-12">
+
+    <div class="premium-card text-center p-5">
+
+        <i class="fas fa-building fa-4x text-secondary mb-3"></i>
+
+        <h4>
+
+            No Departments Available
+
+        </h4>
+
+        <p class="text-muted">
+
+            Create your first department to get started.
+
+        </p>
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Create Department Modal -->
+<div class="modal fade" id="createDeptModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:1px solid rgba(108,99,255,.2);">
+                <h5 class="modal-title" style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#fff;">
+                    <i class="fas fa-hard-hat text-warning me-2"></i> Add BCCL Division
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'department_create' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Department Name</label>
+                        <input type="text" name="name" class="form-control" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); color:#fff;" placeholder="e.g., Underground Mining" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Department Code</label>
+                        <input type="text" name="code" class="form-control" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); color:#fff;" placeholder="e.g., UG-MIN" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Description (Optional)</label>
+                        <textarea name="description" class="form-control" rows="3" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); color:#fff;" placeholder="Functions and responsibilities..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Division Head</label>
+                        <select name="head_of_department" class="form-select" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); color:#fff;">
+                            <option value="" style="color:#000;">Select Head of Department</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}" style="color:#000;">{{ user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid rgba(108,99,255,.2);">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="background:linear-gradient(135deg,#6C63FF,#00D4FF); border:none;"><i class="fas fa-plus me-2"></i>Create Division</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ==========================
+    // Animate Department Cards
+    // ==========================
+
+    document.querySelectorAll(".department-card").forEach(function(card, index){
+
+        card.style.opacity = "0";
+        card.style.transform = "translateY(20px)";
+
+        setTimeout(function(){
+
+            card.style.transition = ".45s ease";
+            card.style.opacity = "1";
+            card.style.transform = "translateY(0px)";
+
+        }, index * 100);
+
+    });
+
+    // ==========================
+    // Hover Animation
+    // ==========================
+
+    document.querySelectorAll(".department-card").forEach(function(card){
+
+        card.addEventListener("mouseenter", function(){
+
+            this.style.transform = "translateY(-6px)";
+            this.style.boxShadow = "0 15px 35px rgba(37,99,235,.15)";
+
+        });
+
+        card.addEventListener("mouseleave", function(){
+
+            this.style.transform = "translateY(0)";
+            this.style.boxShadow = "";
+
+        });
+
+    });
+
+});
+
+</script>
+
+<style>
+
+.department-card{
+
+    transition:.35s ease;
+
+}
+
+.department-card:hover{
+
+    cursor:pointer;
+
+}
+
+.icon-circle{
+
+    width:60px;
+
+    height:60px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:24px;
+
+}
+
+.modal-content{
+    border-radius:16px;
+    background: rgba(8, 12, 26, 0.95);
+    /* backdrop-filter removed to fix Chrome pointer-events bug */
+    border: 1px solid rgba(108, 99, 255, 0.2);
+    box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+}
+
+.badge{
+
+    font-size:.8rem;
+
+    padding:.45rem .8rem;
+
+}
+
+.btn{
+
+    border-radius:10px;
+
+}
+
+.table td{
+
+    vertical-align:middle;
+
+}
+
+</style>
+
+{% endblock %}

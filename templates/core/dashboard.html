@@ -1,0 +1,438 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | DocVault{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Real-time overview of your document vault{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Welcome Banner ── */
+.welcome-banner {
+  background: linear-gradient(135deg, rgba(108,99,255,.15) 0%, rgba(0,212,255,.08) 50%, rgba(0,245,160,.06) 100%);
+  border: 1px solid rgba(108,99,255,.2);
+  border-radius: 20px; padding: 28px 32px; margin-bottom: 28px;
+  position: relative; overflow: hidden;
+}
+.welcome-banner::before {
+  content: '';
+  position: absolute; right: -40px; top: -40px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(108,99,255,.12), transparent 70%);
+  pointer-events: none;
+}
+.welcome-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.6rem; font-weight: 800; color: #fff;
+}
+.welcome-name .wave { display: inline-block; animation: waveHand 2s ease-in-out 3; }
+@keyframes waveHand { 0%,100%{transform:rotate(0);}25%{transform:rotate(20deg);}75%{transform:rotate(-10deg);} }
+.live-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(0,245,160,.1); border: 1px solid rgba(0,245,160,.25);
+  color: #00F5A0; border-radius: 99px; padding: 5px 12px;
+  font-size: .72rem; font-weight: 600; letter-spacing: .05em;
+}
+.live-dot { width: 7px; height: 7px; background: #00F5A0; border-radius: 50%; animation: livePulse 1.5s ease infinite; }
+@keyframes livePulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.7);} }
+
+/* ── Stat Cards ── */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 20px; margin-bottom: 28px; }
+
+/* ── Chart Cards ── */
+.chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 28px; }
+@media(max-width:1100px) { .chart-row { grid-template-columns: 1fr; } }
+
+/* ── Bottom Row ── */
+.bottom-row { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+@media(max-width:1100px) { .bottom-row { grid-template-columns: 1fr; } }
+
+/* ── Activity Item ── */
+.activity-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+  transition: .25s;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-item:hover { padding-left: 4px; }
+.activity-dot {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: .8rem;
+  background: rgba(108,99,255,.1); color: #6C63FF;
+}
+.activity-text { font-size: .8rem; color: #E2E8F0; line-height: 1.5; }
+.activity-time { font-size: .7rem; color: #64748B; margin-top: 2px; }
+
+/* ── Quick Actions ── */
+.quick-btn {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: 12px;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07);
+  text-decoration: none; transition: .3s cubic-bezier(.34,1.56,.64,1);
+  margin-bottom: 10px; cursor: pointer;
+}
+.quick-btn:hover { background: rgba(108,99,255,.1); border-color: rgba(108,99,255,.3); transform: translateX(4px); }
+.quick-btn-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: .9rem; flex-shrink: 0; }
+.quick-btn-title { font-size: .85rem; font-weight: 600; color: #fff; }
+.quick-btn-sub { font-size: .72rem; color: #64748B; }
+
+/* ── Table ── */
+.table { color: var(--text) !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+  <!-- ── Welcome Banner ── -->
+  <div class="welcome-banner animate-fade-up">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div>
+        <div class="welcome-name mb-2">
+          Hey, {{ request.user.first_name|default:request.user.username }}!
+          <span class="wave">👋</span>
+        </div>
+        <p style="color:#94a3b8;font-size:.875rem;margin:0;">
+          Here's your document vault overview — everything is live & up to date.
+        </p>
+      </div>
+      <div class="d-flex flex-column align-items-end gap-2">
+        <div class="live-badge"><div class="live-dot"></div> LIVE DATA</div>
+        <div style="font-size:.8rem;color:#64748B;">
+          <i class="fas fa-calendar-alt me-1" style="color:#6C63FF;"></i>
+          <span id="todayDate"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Stat Cards ── -->
+  <div class="stats-row">
+
+    <div class="stat-card blue reveal" data-delay="0">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <div style="font-size:.75rem;color:#64748B;font-weight:500;letter-spacing:.05em;text-transform:uppercase;">Total Documents</div>
+          <div class="stat-value counter mt-2">{{ total_documents }}</div>
+        </div>
+        <div class="stat-icon blue"><i class="fas fa-file-alt"></i></div>
+      </div>
+      <div style="font-size:.75rem;color:#6C63FF;">
+        <i class="fas fa-arrow-up me-1"></i>+{{ total_documents }} total
+      </div>
+    </div>
+
+    <div class="stat-card green reveal" data-delay="80">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <div style="font-size:.75rem;color:#64748B;font-weight:500;letter-spacing:.05em;text-transform:uppercase;">Employees</div>
+          <div class="stat-value counter mt-2">{{ total_users }}</div>
+        </div>
+        <div class="stat-icon green"><i class="fas fa-users"></i></div>
+      </div>
+      <div style="font-size:.75rem;color:#00F5A0;">
+        <i class="fas fa-circle me-1" style="font-size:.5rem;"></i>Active members
+      </div>
+    </div>
+
+    <div class="stat-card amber reveal" data-delay="160">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <div style="font-size:.75rem;color:#64748B;font-weight:500;letter-spacing:.05em;text-transform:uppercase;">Departments</div>
+          <div class="stat-value counter mt-2">{{ total_departments }}</div>
+        </div>
+        <div class="stat-icon amber"><i class="fas fa-building"></i></div>
+      </div>
+      <div style="font-size:.75rem;color:#FFB347;">
+        <i class="fas fa-layer-group me-1"></i>Across all teams
+      </div>
+    </div>
+
+    <div class="stat-card rose reveal" data-delay="240">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <div style="font-size:.75rem;color:#64748B;font-weight:500;letter-spacing:.05em;text-transform:uppercase;">Approved</div>
+          <div class="stat-value counter mt-2" style="color:#00F5A0;">{{ approved_documents }}</div>
+        </div>
+        <div class="stat-icon rose"><i class="fas fa-check-circle"></i></div>
+      </div>
+      <div style="font-size:.75rem;color:#FF6B9D;">
+        <i class="fas fa-clock me-1"></i>{{ pending_documents }} pending review
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Charts Row ── -->
+  <div class="chart-row">
+
+    <!-- Monthly Upload Chart -->
+    <div class="premium-card reveal" data-delay="100">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h6 style="color:#fff;font-weight:700;margin:0;">Monthly Document Uploads</h6>
+          <small style="color:#64748B;">Live data from database</small>
+        </div>
+        <div class="d-flex gap-2">
+          <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+        </div>
+      </div>
+      <canvas id="uploadChart" height="120"></canvas>
+    </div>
+
+    <!-- Status Doughnut -->
+    <div class="premium-card reveal" data-delay="200">
+      <h6 style="color:#fff;font-weight:700;margin-bottom:20px;">Document Status</h6>
+      <canvas id="statusChart" height="200"></canvas>
+      <hr class="neon-divider">
+      <div class="row text-center g-0">
+        <div class="col-6">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:#00F5A0;" class="counter">{{ approved_documents }}</div>
+          <small style="color:#64748B;font-size:.72rem;">Approved</small>
+        </div>
+        <div class="col-6">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:#FFB347;" class="counter">{{ pending_documents }}</div>
+          <small style="color:#64748B;font-size:.72rem;">Pending</small>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Bottom Row ── -->
+  <div class="bottom-row">
+
+    <!-- Activity Feed -->
+    <div class="premium-card reveal" data-delay="100">
+      <h6 style="color:#fff;font-weight:700;margin-bottom:16px;">
+        <i class="fas fa-clock me-2" style="color:#6C63FF;"></i>Recent Activity
+      </h6>
+      <div>
+        {% for doc in recent_documents_list %}
+        <div class="activity-item">
+          <div class="activity-dot">
+            <i class="fas fa-cloud-upload-alt"></i>
+          </div>
+          <div>
+            <div class="activity-text">
+              <strong style="color:#fff;">{{ doc.uploader.username }}</strong>
+              uploaded <strong style="color:#6C63FF;">{{ doc.title }}</strong>
+            </div>
+            <div class="activity-time">
+              <i class="fas fa-calendar me-1"></i>{{ doc.uploaded_at|date:"d M Y · h:i A" }}
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-4" style="color:#64748B;">
+          <i class="fas fa-inbox fa-2x mb-3 d-block" style="color:#334155;"></i>
+          No recent activity yet.
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Recent Documents Table + Quick Actions -->
+    <div class="d-flex flex-column gap-4">
+
+      <!-- Quick Actions -->
+      <div class="premium-card reveal" data-delay="200">
+        <h6 style="color:#fff;font-weight:700;margin-bottom:16px;">
+          <i class="fas fa-bolt me-2" style="color:#FFB347;"></i>Quick Actions
+        </h6>
+        <div>
+          <a href="{% url 'document_list' %}" class="quick-btn">
+            <div class="quick-btn-icon" style="background:rgba(108,99,255,.12);color:#6C63FF;"><i class="fas fa-cloud-upload-alt"></i></div>
+            <div><div class="quick-btn-title">Upload Document</div><div class="quick-btn-sub">Add a new file to the vault</div></div>
+            <i class="fas fa-arrow-right ms-auto" style="color:#64748B;font-size:.75rem;"></i>
+          </a>
+          <a href="{% url 'department_list' %}" class="quick-btn">
+            <div class="quick-btn-icon" style="background:rgba(0,212,255,.08);color:#00D4FF;"><i class="fas fa-building"></i></div>
+            <div><div class="quick-btn-title">Manage Departments</div><div class="quick-btn-sub">View all department records</div></div>
+            <i class="fas fa-arrow-right ms-auto" style="color:#64748B;font-size:.75rem;"></i>
+          </a>
+          <a href="{% url 'user_list' %}" class="quick-btn">
+            <div class="quick-btn-icon" style="background:rgba(0,245,160,.08);color:#00F5A0;"><i class="fas fa-users"></i></div>
+            <div><div class="quick-btn-title">Employee Directory</div><div class="quick-btn-sub">Browse all employees</div></div>
+            <i class="fas fa-arrow-right ms-auto" style="color:#64748B;font-size:.75rem;"></i>
+          </a>
+          <a href="{% url 'analytics_summary' %}" class="quick-btn">
+            <div class="quick-btn-icon" style="background:rgba(255,107,157,.08);color:#FF6B9D;"><i class="fas fa-chart-pie"></i></div>
+            <div><div class="quick-btn-title">View Analytics</div><div class="quick-btn-sub">Full reports & insights</div></div>
+            <i class="fas fa-arrow-right ms-auto" style="color:#64748B;font-size:.75rem;"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Recent Documents Table -->
+      <div class="premium-card reveal" data-delay="300">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h6 style="color:#fff;font-weight:700;margin:0;">
+            <i class="fas fa-folder-open me-2" style="color:#6C63FF;"></i>Recent Documents
+          </h6>
+          <a href="{% url 'document_list' %}" class="btn-glass" style="font-size:.75rem;padding:7px 14px;">
+            View All <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th style="font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#64748B;font-weight:600;border:none;">ID</th>
+                <th style="font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#64748B;font-weight:600;border:none;">Document</th>
+                <th style="font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#64748B;font-weight:600;border:none;">Dept</th>
+                <th style="font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#64748B;font-weight:600;border:none;">By</th>
+                <th style="font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#64748B;font-weight:600;border:none;">Status</th>
+                <th style="font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#64748B;font-weight:600;border:none;">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for doc in recent_documents_list %}
+              <tr style="border-color:rgba(255,255,255,.04) !important;">
+                <td style="font-size:.8rem;color:#64748B;font-family:'Space Grotesk',sans-serif;font-weight:600;">DOC-{{ doc.id }}</td>
+                <td style="font-size:.85rem;color:#fff;font-weight:500;">{{ doc.title|truncatechars:28 }}</td>
+                <td style="font-size:.8rem;color:#94a3b8;">{{ doc.department.name|default:"General" }}</td>
+                <td style="font-size:.8rem;color:#94a3b8;">{{ doc.uploader.username }}</td>
+                <td>
+                  {% if doc.ai_status == "PROCESSED" %}
+                    <span class="badge-neon success"><i class="fas fa-circle" style="font-size:.45rem;"></i>Approved</span>
+                  {% else %}
+                    <span class="badge-neon warning"><i class="fas fa-circle" style="font-size:.45rem;"></i>Pending</span>
+                  {% endif %}
+                </td>
+                <td style="font-size:.78rem;color:#64748B;">{{ doc.uploaded_at|date:"d M Y" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="text-center py-5" style="color:#64748B;">
+                  <i class="fas fa-folder-open fa-2x mb-3 d-block" style="color:#334155;"></i>
+                  No documents yet. <a href="{% url 'document_upload' %}" style="color:#6C63FF;">Upload your first →</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ── Today Date ── */
+document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-IN',{
+  weekday:'long', day:'numeric', month:'long', year:'numeric'
+});
+
+/* ── Upload Line Chart ── */
+const uploadCtx = document.getElementById('uploadChart');
+if (uploadCtx) {
+  const labels = {{ upload_labels|safe }};
+  const data   = JSON.parse('{{ upload_counts|safe|escapejs }}');
+  const gradient = uploadCtx.getContext('2d').createLinearGradient(0,0,0,300);
+  gradient.addColorStop(0, 'rgba(108,99,255,.4)');
+  gradient.addColorStop(1, 'rgba(108,99,255,0)');
+
+  new Chart(uploadCtx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Documents',
+        data,
+        fill: true,
+        borderColor: '#6C63FF',
+        backgroundColor: gradient,
+        borderWidth: 3,
+        pointRadius: 5,
+        pointHoverRadius: 9,
+        pointBackgroundColor: '#6C63FF',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        tension: .4,
+      }]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(8,12,26,.95)',
+          borderColor: 'rgba(108,99,255,.3)',
+          borderWidth: 1,
+          titleColor: '#fff',
+          bodyColor: '#94a3b8',
+          padding: 12,
+          cornerRadius: 10,
+        }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#64748B', font: { size: 11 } } },
+        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#64748B', font: { size: 11 } } }
+      },
+      animation: {
+        duration: 1200,
+        easing: 'easeOutQuart',
+      }
+    }
+  });
+}
+
+/* ── Status Doughnut ── */
+const statusCtx = document.getElementById('statusChart');
+if (statusCtx) {
+  new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Approved', 'Pending'],
+      datasets: [{
+        data: [{{ approved_documents }}, {{ pending_documents }}],
+        backgroundColor: ['#00F5A0', '#FFB347'],
+        borderWidth: 0,
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      cutout: '72%',
+      responsive: true,
+      animation: { duration: 1000, easing: 'easeOutBounce' },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#94a3b8', font: { size: 12 }, padding: 20, usePointStyle: true }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(8,12,26,.95)',
+          borderColor: 'rgba(108,99,255,.3)',
+          borderWidth: 1,
+          titleColor: '#fff',
+          bodyColor: '#94a3b8',
+          padding: 12,
+          cornerRadius: 10,
+        }
+      }
+    }
+  });
+}
+
+/* ── Quick Actions Ripple ── */
+document.querySelectorAll('.quick-btn').forEach(btn => {
+  btn.style.position = 'relative';
+  btn.style.overflow = 'hidden';
+  btn.addEventListener('click', e => {
+    const r = btn.getBoundingClientRect();
+    const rpl = document.createElement('span');
+    const size = Math.max(r.width,r.height)*2;
+    rpl.style.cssText = `position:absolute;width:${size}px;height:${size}px;left:${e.clientX-r.left-size/2}px;top:${e.clientY-r.top-size/2}px;border-radius:50%;background:rgba(108,99,255,.15);pointer-events:none;transform:scale(0);animation:rplQ .6s ease-out forwards;`;
+    btn.appendChild(rpl);
+    setTimeout(()=>rpl.remove(), 600);
+  });
+});
+const rplQS = document.createElement('style');
+rplQS.textContent = '@keyframes rplQ{to{transform:scale(1);opacity:0;}}';
+document.head.appendChild(rplQS);
+</script>
+{% endblock %}

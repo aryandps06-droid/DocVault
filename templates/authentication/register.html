@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Create your DocVault account — AI-powered document management.">
+<title>Register | DocVault</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{--electric:#6C63FF;--electric-glow:rgba(108,99,255,.35);--cyan:#00D4FF;--emerald:#00F5A0;--rose:#FF6B9D;--bg:#04060F;--text:#E2E8F0;--dim:#64748B;}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);}
+canvas#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.page{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+.register-card{
+  width:100%;max-width:520px;
+  background:rgba(8,12,26,.85);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(108,99,255,.2);border-radius:24px;
+  padding:44px 48px;
+  box-shadow:0 20px 80px rgba(0,0,0,.6),0 0 0 1px rgba(108,99,255,.08);
+  animation:cardIn .6s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(40px) scale(.96);}to{opacity:1;transform:none;}}
+.card-header{text-align:center;margin-bottom:32px;}
+.logo-ring{
+  width:56px;height:56px;border-radius:16px;margin:0 auto 16px;
+  background:linear-gradient(135deg,var(--electric),var(--cyan));
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  box-shadow:0 0 30px var(--electric-glow);
+}
+.card-header h2{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:6px;}
+.card-header p{font-size:.85rem;color:var(--dim);}
+.card-header p a{color:var(--electric);text-decoration:none;font-weight:600;}
+
+/* Google */
+.btn-google{
+  width:100%;padding:13px;border-radius:12px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  transition:.25s;text-decoration:none;margin-bottom:24px;position:relative;overflow:hidden;
+}
+.btn-google:hover{background:rgba(255,255,255,.09);border-color:rgba(234,67,53,.35);color:#fff;}
+.g-logo{width:20px;height:20px;background:url('https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg') center/contain no-repeat;flex-shrink:0;}
+.or-divider{display:flex;align-items:center;gap:14px;margin-bottom:24px;}
+.or-line{flex:1;height:1px;background:rgba(255,255,255,.07);}
+.or-text{font-size:.72rem;color:var(--dim);}
+
+/* Float labels */
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.float-group{position:relative;margin-bottom:16px;}
+.float-group input,.float-group select{
+  width:100%;padding:16px 16px 8px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;color:#fff;font-size:.875rem;outline:none;
+  transition:.25s;font-family:inherit;-webkit-appearance:none;
+}
+.float-group input:focus,.float-group select:focus{
+  border-color:var(--electric);
+  box-shadow:0 0 0 3px rgba(108,99,255,.12);
+  background:rgba(108,99,255,.04);
+}
+.float-group input::placeholder,.float-group select::placeholder{color:transparent;}
+.float-group label{
+  position:absolute;left:16px;top:50%;transform:translateY(-50%);
+  color:var(--dim);font-size:.85rem;pointer-events:none;transition:.2s;transform-origin:left;
+}
+.float-group input:focus+label,
+.float-group input:not(:placeholder-shown)+label,
+.float-group select:focus+label,
+.float-group select:valid+label{top:10px;transform:translateY(0) scale(.8);color:var(--electric);}
+.float-group .pw-toggle{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--dim);cursor:pointer;transition:.2s;}
+.float-group .pw-toggle:hover{color:var(--electric);}
+
+/* Password strength */
+.strength-bar{height:3px;border-radius:99px;background:rgba(255,255,255,.07);margin-top:6px;overflow:hidden;}
+.strength-fill{height:100%;border-radius:99px;width:0;transition:.3s;}
+
+/* Submit */
+.btn-submit{
+  width:100%;padding:15px;border-radius:12px;
+  background:linear-gradient(135deg,var(--electric),var(--cyan));
+  border:none;color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;
+  box-shadow:0 8px 30px var(--electric-glow);
+  transition:.3s cubic-bezier(.34,1.56,.64,1);
+  font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn-submit:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 14px 40px var(--electric-glow);}
+.field-error{font-size:.75rem;color:#f87171;margin-top:2px;display:block;margin-bottom:8px;}
+
+.login-link{text-align:center;margin-top:20px;font-size:.85rem;color:var(--dim);}
+.login-link a{color:var(--electric);text-decoration:none;font-weight:600;}
+
+/* Progress steps */
+.form-steps{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:28px;}
+.step-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);transition:.3s;}
+.step-dot.active{background:var(--electric);box-shadow:0 0 8px var(--electric-glow);width:24px;border-radius:4px;}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div class="page">
+  <div class="register-card">
+    <div class="card-header">
+      <div class="logo-ring">🗄️</div>
+      <h2>Create your account</h2>
+      <p>Already have one? <a href="{% url 'auth_login' %}">Sign in instead</a></p>
+    </div>
+
+    {% load socialaccount %}
+    {% get_providers as socialaccount_providers %}
+    {% if socialaccount_providers %}
+    <a href="{% provider_login_url 'google' %}" class="btn-google">
+      <div class="g-logo"></div> Continue with Google
+    </a>
+    {% else %}
+    <div class="btn-google" style="opacity:.45;cursor:not-allowed;">
+      <div class="g-logo"></div> Continue with Google <small style="font-size:.7rem;color:#64748b;">(configure OAuth)</small>
+    </div>
+    {% endif %}
+    <div class="or-divider">
+      <div class="or-line"></div><span class="or-text">OR CREATE WITH EMAIL</span><div class="or-line"></div>
+    </div>
+
+    <form method="POST" id="regForm">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        {% for err in form.non_field_errors %}<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#f87171;border-radius:10px;padding:10px 14px;font-size:.82rem;margin-bottom:12px;">{{ err }}</div>{% endfor %}
+      {% endif %}
+
+      <div class="row-2">
+        <div class="float-group">
+          {{ form.first_name }}
+          <label>First Name</label>
+          {% if form.first_name.errors %}<span class="field-error">{{ form.first_name.errors|join:", " }}</span>{% endif %}
+        </div>
+        <div class="float-group">
+          {{ form.last_name }}
+          <label>Last Name</label>
+          {% if form.last_name.errors %}<span class="field-error">{{ form.last_name.errors|join:", " }}</span>{% endif %}
+        </div>
+      </div>
+
+      <div class="float-group">
+        {{ form.username }}
+        <label>Username</label>
+        {% if form.username.errors %}<span class="field-error">{{ form.username.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <div class="float-group">
+        {{ form.email }}
+        <label>Email Address</label>
+        {% if form.email.errors %}<span class="field-error">{{ form.email.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <div class="float-group">
+        <input type="password" name="password1" id="pw1" placeholder=" " autocomplete="new-password">
+        <label>Password</label>
+        <i class="fas fa-eye pw-toggle" id="pwT1"></i>
+        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+        {% if form.password1.errors %}<span class="field-error">{{ form.password1.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <div class="float-group">
+        <input type="password" name="password2" id="pw2" placeholder=" " autocomplete="new-password">
+        <label>Confirm Password</label>
+        <i class="fas fa-eye pw-toggle" id="pwT2"></i>
+        {% if form.password2.errors %}<span class="field-error">{{ form.password2.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <button type="submit" class="btn-submit">
+        <i class="fas fa-user-plus"></i> Create Account
+      </button>
+    </form>
+
+    <div class="login-link">Already have an account? <a href="{% url 'auth_login' %}">Sign in →</a></div>
+  </div>
+</div>
+
+<script src="/static/js/notifications.js"></script>
+{% if messages %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  {% for message in messages %}
+  if (window.ToastEngine) { window.ToastEngine.show("{{ message|escapejs }}", "{{ message.tags|default:'' }}"); }
+  {% endfor %}
+});
+</script>
+{% endif %}
+<script>
+/* Particle canvas */
+const canvas=document.getElementById('bgCanvas'),ctx=canvas.getContext('2d');
+function sz(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}sz();
+window.addEventListener('resize',sz);
+const COLS=['rgba(108,99,255,','rgba(0,212,255,','rgba(0,245,160,'];
+const pts=Array.from({length:55},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*2+.5,c:COLS[Math.floor(Math.random()*COLS.length)],a:Math.random()*.35+.1}));
+(function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const g1=ctx.createRadialGradient(canvas.width*.2,canvas.height*.3,0,canvas.width*.2,canvas.height*.3,280);
+  g1.addColorStop(0,'rgba(108,99,255,.06)');g1.addColorStop(1,'transparent');
+  ctx.fillStyle=g1;ctx.fillRect(0,0,canvas.width,canvas.height);
+  pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c+p.a+')';ctx.fill();});
+  requestAnimationFrame(draw);
+})();
+
+/* Floating label fix */
+document.querySelectorAll('.float-group input,.float-group select').forEach(el=>el.setAttribute('placeholder',' '));
+
+/* PW toggles */
+[[document.getElementById('pw1'),document.getElementById('pwT1')],[document.getElementById('pw2'),document.getElementById('pwT2')]].forEach(([inp,btn])=>{
+  if(!btn||!inp)return;
+  btn.addEventListener('click',()=>{const v=inp.type==='password';inp.type=v?'text':'password';btn.className='fas pw-toggle '+(v?'fa-eye-slash':'fa-eye');});
+});
+
+/* Password strength */
+const pw1=document.getElementById('pw1'),fill=document.getElementById('strengthFill');
+if(pw1&&fill){pw1.addEventListener('input',()=>{
+  const v=pw1.value,l=v.length;
+  let s=0;
+  if(l>=8)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;
+  const colors=['#ef4444','#f97316','#eab308','#22c55e'];const pcts=['25%','50%','75%','100%'];
+  fill.style.width=l?pcts[Math.min(s-1,3)]||'10%':'0';
+  fill.style.background=l?colors[Math.min(s-1,3)]:'transparent';
+});}
+</script>
+</body>
+</html>

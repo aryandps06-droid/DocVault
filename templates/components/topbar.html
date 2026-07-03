@@ -1,0 +1,177 @@
+<!-- ===== TOPBAR ===== -->
+<div class="topbar-glass">
+
+  <!-- Left -->
+  <div class="d-flex align-items-center gap-3">
+    <!-- Mobile hamburger -->
+    <button
+      class="d-lg-none notif-btn"
+      id="sidebarToggleBtn"
+      onclick="openSidebar()"
+      title="Open menu">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <div>
+      <h5 class="fw-700 mb-0" style="color:#fff;font-family:'Space Grotesk',sans-serif;font-size:1.05rem;">
+        {% block page_title %}DocVault{% endblock %}
+      </h5>
+      <small class="text-muted-custom" style="font-size:.72rem;">
+        {% block page_subtitle %}AI-Powered Document Management System{% endblock %}
+      </small>
+    </div>
+  </div>
+
+  <!-- Right -->
+  <div class="d-flex align-items-center gap-3">
+
+    <!-- Live Search -->
+    <div class="search-wrap d-none d-md-block">
+      <i class="fas fa-search search-icon"></i>
+      <input
+        type="text"
+        id="globalSearch"
+        placeholder="Search documents..."
+        autocomplete="off">
+    </div>
+
+    <!-- Live Clock -->
+    <div class="text-center d-none d-lg-block">
+      <div style="font-size:.65rem;color:#64748B;letter-spacing:.06em;">LIVE</div>
+      <div id="liveClock" style="font-family:'Space Grotesk',sans-serif;font-size:.875rem;font-weight:600;color:#fff;white-space:nowrap;"></div>
+    </div>
+
+    <!-- Notification Bell -->
+    <div class="position-relative">
+      <button class="notif-btn" id="notifBell" title="Notifications">
+        <i class="fas fa-bell"></i>
+        {% if global_notif_count > 0 %}
+        <span class="notif-badge" id="notifCount">{{ global_notif_count }}</span>
+        {% endif %}
+      </button>
+      <!-- Notification Dropdown -->
+      <div id="notifDropdown" style="
+        display:none;position:absolute;top:calc(100% + 12px);right:0;
+        width:300px;background:rgba(8,12,26,.95);border:1px solid rgba(108,99,255,.2);
+        border-radius:16px;padding:8px;
+        box-shadow:0 20px 60px rgba(0,0,0,.5);
+        backdrop-filter:blur(20px);z-index:999;
+        animation:fadeUp .25s ease both;
+      ">
+        <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:600;color:#fff;font-size:.875rem;">Notifications</span>
+          <span style="font-size:.7rem;color:#6C63FF;cursor:pointer;" onclick="clearNotifications()">Clear all</span>
+        </div>
+        <div id="notifList" style="max-height:260px;overflow-y:auto;">
+          {% for notif in global_notifications %}
+          <a href="{% url 'document_detail' notif.id %}" style="text-decoration:none;" class="notif-item" style="padding:12px 14px;display:flex;gap:10px;border-radius:10px;transition:.2s;cursor:pointer;">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(108,99,255,.12);color:#6C63FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-cloud-upload-alt" style="font-size:.8rem;"></i></div>
+            <div>
+              <div style="font-size:.8rem;color:#fff;font-weight:500;">{{ notif.uploader.username }} uploaded a document</div>
+              <div style="font-size:.72rem;color:#64748B;">{{ notif.title|truncatechars:25 }}</div>
+            </div>
+          </a>
+          {% empty %}
+          <div style="padding:28px;text-align:center;color:#64748B;font-size:.85rem;">
+            <i class="fas fa-check-circle" style="font-size:1.5rem;color:#00F5A0;display:block;margin-bottom:8px;"></i>
+            No new notifications
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button class="notif-btn" onclick="toggleTheme()" title="Toggle theme">
+      <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+
+    <!-- User Dropdown -->
+    <div class="dropdown">
+      <button class="d-flex align-items-center gap-2 btn-glass dropdown-toggle" data-bs-toggle="dropdown" style="border:none !important;">
+        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6C63FF,#00D4FF);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff;box-shadow:0 0 10px rgba(108,99,255,.4);">
+          {{ request.user.username|first|upper }}
+        </div>
+        <span class="d-none d-md-block" style="font-size:.85rem;color:#fff;font-weight:500;">{{ request.user.username }}</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><h6 class="dropdown-header">{{ request.user.role|default:"Member" }}</h6></li>
+        <li>
+          <a class="dropdown-item" href="#">
+            <i class="fas fa-user me-2" style="color:#6C63FF;width:16px;"></i> My Profile
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="#">
+            <i class="fas fa-cog me-2" style="color:#00D4FF;width:16px;"></i> Settings
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="{% url 'analytics_summary' %}">
+            <i class="fas fa-chart-bar me-2" style="color:#00F5A0;width:16px;"></i> Analytics
+          </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <a class="dropdown-item text-danger" href="{% url 'auth_logout' %}">
+            <i class="fas fa-sign-out-alt me-2" style="width:16px;"></i> Sign Out
+          </a>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.notif-item:hover { background: rgba(108,99,255,.08); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;} }
+</style>
+
+<script>
+/* ── Notification Bell Toggle ── */
+const notifBell = document.getElementById('notifBell');
+const notifDrop = document.getElementById('notifDropdown');
+let notifOpen  = false;
+if (notifBell) {
+  notifBell.addEventListener('click', e => {
+    e.stopPropagation();
+    notifOpen = !notifOpen;
+    notifDrop.style.display = notifOpen ? 'block' : 'none';
+    if (notifOpen) {
+      document.getElementById('notifCount').style.display = 'none';
+    }
+  });
+  document.addEventListener('click', e => {
+    if (!notifBell.contains(e.target) && !notifDrop.contains(e.target)) {
+      notifOpen = false;
+      notifDrop.style.display = 'none';
+    }
+  });
+}
+function clearNotifications() {
+  document.getElementById('notifList').innerHTML = `
+    <div style="padding:28px;text-align:center;color:#64748B;font-size:.85rem;">
+      <i class="fas fa-check-circle" style="font-size:1.5rem;color:#00F5A0;display:block;margin-bottom:8px;"></i>
+      All caught up!
+    </div>`;
+  document.getElementById('notifCount').style.display = 'none';
+}
+
+/* ── Theme icon on load ── */
+const savedT = localStorage.getItem('dvTheme');
+if (savedT === 'light') {
+  const icon = document.getElementById('themeIcon');
+  if (icon) icon.className = 'fas fa-sun';
+}
+
+/* ── Live Search on Enter ── */
+const gsearch = document.getElementById('globalSearch');
+if (gsearch) {
+  gsearch.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && gsearch.value.trim()) {
+      window.location.href = '/documents/?search=' + encodeURIComponent(gsearch.value.trim());
+    }
+  });
+}
+</script>
