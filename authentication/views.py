@@ -91,7 +91,7 @@ class RegisterWorkspaceView(View):
                 send_mail(
                     subject="DocVault - Verify Your Email",
                     message=f"Hello,\n\nYour DocVault registration verification code is: {otp_code}\n\nThis code will expire in 10 minutes.\n\nThank you.",
-                    from_email="aryandps06@gmail.com",
+                    from_email=settings.EMAIL_HOST_USER,
                     recipient_list=[email],
                     fail_silently=False,
                 )
@@ -212,7 +212,7 @@ class ForgotPasswordView(View):
                 send_mail(
                     subject="DocVault - Password Reset Code",
                     message=f"Hello,\n\nYour DocVault password reset code is: {otp_code}\n\nThis code will expire in 10 minutes.\n\nThank you.",
-                    from_email="aryandps06@gmail.com",
+                    from_email=settings.EMAIL_HOST_USER,
                     recipient_list=[email],
                     fail_silently=False,
                 )
