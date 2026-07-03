@@ -182,8 +182,8 @@ canvas#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
 <div class="login-scene">
   <div class="login-right" id="tiltCard">
     <div class="form-header stagger-1">
-      <h2>{% if step == 2 %}Verification Code{% else %}BCCL Workspace{% endif %}</h2>
-      <p>{% if step == 2 %}We've beamed a secure 6-digit code to<br><strong style="color:var(--cyan);">{{ email }}</strong>{% else %}Enterprise-grade passwordless authentication. Enter your email to begin.{% endif %}</p>
+      <h2>DocVault Login</h2>
+      <p>Enter your username and password to securely access the workspace.</p>
     </div>
 
     {% if messages %}
@@ -197,34 +197,26 @@ canvas#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
     <form method="POST" id="loginForm">
       {% csrf_token %}
 
-      {% if step == 2 %}
-      <!-- OTP INPUT -->
+      <!-- USERNAME INPUT -->
       <div class="float-group stagger-2">
-        <input type="text" name="otp" id="otpField" maxlength="6" placeholder=" " autocomplete="one-time-code" required class="otp-box-anim" style="font-size: 2rem; letter-spacing: 16px; text-align: center; font-family: 'Space Grotesk', monospace; font-weight:700; border-color: rgba(0, 212, 255, 0.4); background: rgba(0, 212, 255, 0.08);">
-        <label style="left:50%; transform:translateX(-50%) translateY(-50%); color: var(--cyan); font-weight:600;">6-Digit Authorization Code</label>
-      </div>
-      
-      <button type="submit" class="btn-submit stagger-3" id="loginBtn">
-        <span class="btn-text"><i class="fas fa-fingerprint me-2"></i> Verify & Authenticate</span>
-        <div class="spin-loader"></div>
-      </button>
-      
-      <div class="stagger-3 text-center" style="text-align: center;">
-          <a href="{% url 'auth_login' %}" class="back-link"><i class="fas fa-arrow-left me-1"></i> Use a different email</a>
+        <input type="text" name="username" id="usernameField" placeholder=" " autocomplete="username" required style="border-color: rgba(108, 99, 255, 0.4); background: rgba(108, 99, 255, 0.05);">
+        <label>Username</label>
       </div>
 
-      {% else %}
-      <!-- EMAIL INPUT -->
+      <!-- PASSWORD INPUT -->
       <div class="float-group stagger-2">
-        <input type="email" name="email" id="emailField" placeholder=" " autocomplete="email" required style="border-color: rgba(108, 99, 255, 0.4); background: rgba(108, 99, 255, 0.05);">
-        <label>Corporate Email Address</label>
+        <input type="password" name="password" id="passwordField" placeholder=" " autocomplete="current-password" required style="border-color: rgba(0, 212, 255, 0.4); background: rgba(0, 212, 255, 0.05);">
+        <label>Password</label>
       </div>
 
       <button type="submit" class="btn-submit stagger-3" id="loginBtn">
-        <span class="btn-text"><i class="fas fa-bolt me-2"></i> Generate Magic Link</span>
+        <span class="btn-text"><i class="fas fa-lock me-2"></i> Authenticate</span>
         <div class="spin-loader"></div>
       </button>
-      {% endif %}
+
+      <div class="stagger-3 text-center" style="margin-top: 24px;">
+        <span style="color:var(--dim);font-size:0.9rem;">Don't have an account? <a href="{% url 'auth_register' %}" style="color:var(--cyan);text-decoration:none;font-weight:600;">Sign up</a></span>
+      </div>
     </form>
   </div>
 </div>

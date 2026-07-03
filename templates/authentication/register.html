@@ -126,7 +126,33 @@ canvas#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
 
     <form method="POST" id="regForm">
       {% csrf_token %}
+      <input type="hidden" name="step" value="{{ step|default:1 }}">
 
+      {% if step == 1 or not step %}
+      <div class="float-group">
+        <input type="email" name="email" id="emailField" placeholder=" " required style="border-color: rgba(108, 99, 255, 0.4); background: rgba(108, 99, 255, 0.05);">
+        <label>Corporate Email Address</label>
+      </div>
+      <button type="submit" class="btn-submit">
+        <i class="fas fa-bolt"></i> Send Verification Code
+      </button>
+
+      {% elif step == 2 %}
+      <div class="text-center mb-4" style="margin-bottom: 24px;">
+        <p style="color:var(--dim); font-size:0.9rem;">We sent a code to <strong style="color:var(--cyan);">{{ email }}</strong></p>
+      </div>
+      <div class="float-group">
+        <input type="text" name="otp" id="otpField" maxlength="6" placeholder=" " autocomplete="one-time-code" required style="font-size: 2rem; letter-spacing: 16px; text-align: center; font-family: 'Space Grotesk', monospace; font-weight:700; border-color: rgba(0, 212, 255, 0.4); background: rgba(0, 212, 255, 0.08);">
+        <label style="left:50%; transform:translateX(-50%) translateY(-50%); color: var(--cyan); font-weight:600;">6-Digit Code</label>
+      </div>
+      <button type="submit" class="btn-submit">
+        <i class="fas fa-fingerprint"></i> Verify Code
+      </button>
+      <div class="text-center" style="margin-top: 20px;">
+          <a href="{% url 'auth_register' %}" style="color:var(--dim); font-size: 0.85rem; text-decoration:none;"><i class="fas fa-arrow-left"></i> Change email</a>
+      </div>
+
+      {% elif step == 3 %}
       {% if form.non_field_errors %}
         {% for err in form.non_field_errors %}<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#f87171;border-radius:10px;padding:10px 14px;font-size:.82rem;margin-bottom:12px;">{{ err }}</div>{% endfor %}
       {% endif %}
@@ -150,10 +176,9 @@ canvas#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
         {% if form.username.errors %}<span class="field-error">{{ form.username.errors|join:", " }}</span>{% endif %}
       </div>
 
-      <div class="float-group">
+      <div class="float-group" style="opacity: 0.6; pointer-events: none;">
         {{ form.email }}
-        <label>Email Address</label>
-        {% if form.email.errors %}<span class="field-error">{{ form.email.errors|join:", " }}</span>{% endif %}
+        <label>Email Address (Verified)</label>
       </div>
 
       <div class="float-group">
@@ -174,6 +199,7 @@ canvas#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
       <button type="submit" class="btn-submit">
         <i class="fas fa-user-plus"></i> Create Account
       </button>
+      {% endif %}
     </form>
 
     <div class="login-link">Already have an account? <a href="{% url 'auth_login' %}">Sign in →</a></div>

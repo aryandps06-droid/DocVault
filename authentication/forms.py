@@ -21,14 +21,14 @@ class SecureLoginForm(AuthenticationForm):
 
 class SecureRegisterForm(forms.ModelForm):
 
-    password = forms.CharField(
+    password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control premium-input',
             'placeholder': 'Create Password'
         })
     )
 
-    confirm_password = forms.CharField(
+    password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control premium-input',
             'placeholder': 'Confirm Password'
@@ -37,26 +37,20 @@ class SecureRegisterForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'role']
+        fields = ['first_name', 'last_name', 'username', 'email']
 
         widgets = {
-            'username': forms.TextInput(attrs={
-                'class': 'form-control premium-input'
-            }),
-            'email': forms.EmailInput(attrs={
-                'class': 'form-control premium-input'
-            }),
-            'role': forms.Select(attrs={
-                'class': 'form-control premium-input'
-            }),
+            'first_name': forms.TextInput(attrs={'class': 'form-control premium-input'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control premium-input'}),
+            'username': forms.TextInput(attrs={'class': 'form-control premium-input'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control premium-input'}),
         }
 
     def clean(self):
-
         cleaned_data = super().clean()
 
-        password = cleaned_data.get("password")
-        confirm = cleaned_data.get("confirm_password")
+        password = cleaned_data.get("password1")
+        confirm = cleaned_data.get("password2")
 
         if password != confirm:
             raise forms.ValidationError("Passwords do not match.")
@@ -68,7 +62,7 @@ class SecureRegisterForm(forms.ModelForm):
         user = super().save(commit=False)
 
         # IMPORTANT: hash the password
-        user.set_password(self.cleaned_data["password"])
+        user.set_password(self.cleaned_data["password1"])
 
         if commit:
             user.save()
