@@ -106,8 +106,16 @@ canvas#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
     <div class="card-header">
       <div class="logo-ring">🗄️</div>
       <h2>Create your account</h2>
-      <p>Already have one? <a href="{% url 'auth_login' %}">Sign in instead</a></p>
     </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div style="background:{% if message.tags == 'success' or message.tags == 'info' %}rgba(0,245,160,0.1){% else %}rgba(239,68,68,.08){% endif %}; border:1px solid {% if message.tags == 'success' or message.tags == 'info' %}rgba(0,245,160,0.3){% else %}rgba(239,68,68,.25){% endif %}; color:{% if message.tags == 'success' or message.tags == 'info' %}#00F5A0{% else %}#f87171{% endif %}; border-radius:12px; padding:14px 18px; font-size:.9rem; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
+      <i class="fas {% if message.tags == 'success' or message.tags == 'info' %}fa-check-circle{% else %}fa-circle-exclamation{% endif %} fa-lg"></i> {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
     <form method="POST" id="regForm">
       {% csrf_token %}
       <input type="hidden" name="step" value="{{ step|default:1 }}">
