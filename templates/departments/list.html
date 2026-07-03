@@ -214,7 +214,7 @@ Departments | DocVault
 
             {% if dept.head_of_department %}
 
-                {{ dept.head_of_department.username }}
+                {{ dept.head_of_department.username }} <small class="text-info d-block mt-1">({{ dept.get_division_head_type_display }})</small>
 
             {% else %}
 
@@ -318,6 +318,17 @@ Departments | DocVault
                             {% for user in users %}
                             <option value="{{ user.id }}" style="color:#000;">{{ user.username }}</option>
                             {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted font-weight-bold">Division Head Title</label>
+                        <select name="division_head_type" class="form-select" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); color:#fff;" required>
+                            <option value="MANAGER" style="color:#000;">Department Manager</option>
+                            <option value="GM" style="color:#000;">General Manager (GM)</option>
+                            <option value="DIRECTOR" style="color:#000;">Project Director</option>
+                            <option value="CSO" style="color:#000;">Chief Safety Officer (CSO)</option>
+                            <option value="SUPERINTENDENT" style="color:#000;">Superintendent</option>
+                            <option value="LEAD" style="color:#000;">Operations Lead</option>
                         </select>
                     </div>
                 </div>

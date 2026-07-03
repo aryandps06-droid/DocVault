@@ -21,6 +21,7 @@ class DepartmentCreateView(LoginRequiredMixin, View):
         description = request.POST.get('description')
         hod_id = request.POST.get('head_of_department')
         dept_type = request.POST.get('type')
+        div_head_type = request.POST.get('division_head_type')
 
         if Department.objects.filter(code=code).exists():
             messages.error(request, f"Structural units error: Code mapping '{code}' collisions detected.")
@@ -33,7 +34,8 @@ class DepartmentCreateView(LoginRequiredMixin, View):
             code=code.upper(),
             description=description,
             head_of_department=hod_user,
-            type=dept_type
+            type=dept_type,
+            division_head_type=div_head_type
         )
         messages.success(request, f"Corporate department layer organizational structure node '{name}' mounted smoothly.")
         return redirect('department_list')

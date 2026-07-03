@@ -11,6 +11,14 @@ class Department(models.Model):
         FINANCE = 'FINANCE', 'Finance & Accounts'
         SAFETY = 'SAFETY', 'Safety & Compliance'
 
+    class DivisionHeadType(models.TextChoices):
+        GM = 'GM', 'General Manager (GM)'
+        MANAGER = 'MANAGER', 'Department Manager'
+        DIRECTOR = 'DIRECTOR', 'Project Director'
+        CSO = 'CSO', 'Chief Safety Officer (CSO)'
+        SUPERINTENDENT = 'SUPERINTENDENT', 'Superintendent'
+        LEAD = 'LEAD', 'Operations Lead'
+
     name = models.CharField(max_length=150, unique=True)
     code = models.CharField(max_length=10, unique=True)
     description = models.TextField(blank=True, null=True)
@@ -25,6 +33,11 @@ class Department(models.Model):
         null=True,
         blank=True,
         related_name='managed_department'
+    )
+    division_head_type = models.CharField(
+        max_length=50,
+        choices=DivisionHeadType.choices,
+        default=DivisionHeadType.MANAGER
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
