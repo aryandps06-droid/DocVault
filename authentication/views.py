@@ -110,7 +110,7 @@ class LoginWorkspaceView(View):
                     valid_otp.is_used = True
                     valid_otp.save()
                     
-                    login(request, user)
+                    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                     
                     # Clean up session
                     del request.session["otp_email"]
