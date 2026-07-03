@@ -108,22 +108,6 @@ canvas#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
       <h2>Create your account</h2>
       <p>Already have one? <a href="{% url 'auth_login' %}">Sign in instead</a></p>
     </div>
-
-    {% load socialaccount %}
-    {% get_providers as socialaccount_providers %}
-    {% if socialaccount_providers %}
-    <a href="{% provider_login_url 'google' %}" class="btn-google">
-      <div class="g-logo"></div> Continue with Google
-    </a>
-    {% else %}
-    <div class="btn-google" style="opacity:.45;cursor:not-allowed;">
-      <div class="g-logo"></div> Continue with Google <small style="font-size:.7rem;color:#64748b;">(configure OAuth)</small>
-    </div>
-    {% endif %}
-    <div class="or-divider">
-      <div class="or-line"></div><span class="or-text">OR CREATE WITH EMAIL</span><div class="or-line"></div>
-    </div>
-
     <form method="POST" id="regForm">
       {% csrf_token %}
       <input type="hidden" name="step" value="{{ step|default:1 }}">
