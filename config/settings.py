@@ -188,3 +188,8 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'YOUR_EMAIL@gmail.com')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'YOUR_APP_PASSWORD')
 
 EMAIL_OTP_EXPIRE_MINUTES = 5
+
+# Stateless Cookie-Based Sessions for Vercel Serverless
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+SESSION_COOKIE_HTTPONLY = True
+SESSION_SAVE_EVERY_REQUEST = True
