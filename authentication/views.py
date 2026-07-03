@@ -91,7 +91,7 @@ class RegisterWorkspaceView(View):
                 messages.info(request, f"We've sent a 6-digit code to {email}")
             except Exception as e:
                 print(f"Error sending email: {e}")
-                messages.error(request, "Failed to send email. Check console logs.")
+                messages.warning(request, f"Email failed to send. Developer Bypass: Your code is {otp_code}")
                 
             return render(request, self.template_name, {"step": 2, "email": email})
             
@@ -212,7 +212,7 @@ class ForgotPasswordView(View):
                 messages.info(request, f"We've sent a 6-digit code to {email}")
             except Exception as e:
                 print(f"Error sending email: {e}")
-                messages.error(request, "Failed to send email. Check console logs.")
+                messages.warning(request, f"Email failed to send. Developer Bypass: Your code is {otp_code}")
                 
             return render(request, self.template_name, {"step": 2, "email": email})
             
