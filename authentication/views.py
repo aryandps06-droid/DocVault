@@ -31,6 +31,13 @@ class LoginWorkspaceView(View):
             return render(request, self.template_name)
             
         user = authenticate(request, username=username, password=password)
+        
+        # Fallback: if username is an email address, try fetching the user by email
+        if user is None and '@' in username:
+            email_user = User.objects.filter(email=username.lower()).first()
+            if email_user:
+                user = authenticate(request, username=email_user.username, password=password)
+                
         if user is not None:
             login(request, user)
             messages.success(request, f"Welcome back, {user.username}!")
