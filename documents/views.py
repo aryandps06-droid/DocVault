@@ -114,11 +114,21 @@ class DocumentDetailWorkspaceOverview(LoginRequiredMixin, View):
 
         document = get_object_or_404(Document, id=doc_id)
 
+        # Check if the file physically exists on the current serverless instance node
+        import os
+        file_exists = False
+        try:
+            if document.file and os.path.exists(document.file.path):
+                file_exists = True
+        except Exception:
+            pass
+
         return render(
             request,
             self.template_name,
             {
-                "document": document
+                "document": document,
+                "file_exists": file_exists
             }
         )
 
