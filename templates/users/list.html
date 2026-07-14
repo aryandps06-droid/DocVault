@@ -275,61 +275,50 @@
     </td>
 
     <!-- Action -->
-
     <td>
-
-        <form
-
-            method="POST"
-
-            action="{% url 'user_role_update' user.id %}"
-
-            class="d-flex gap-2">
-
-            {% csrf_token %}
-
-            <select
-
-                class="form-select form-select-sm"
-
-                name="role">
-
-                <option value="EMPLOYEE"
-
-                    {% if user.role == "EMPLOYEE" %}selected{% endif %}>
-
-                    Employee
-
-                </option>
-
-                <option value="MANAGER"
-
-                    {% if user.role == "MANAGER" %}selected{% endif %}>
-
-                    Manager
-
-                </option>
-
-                <option value="ADMIN"
-
-                    {% if user.role == "ADMIN" %}selected{% endif %}>
-
-                    Administrator
-
-                </option>
-
-            </select>
-
-            <button
-
-                class="btn btn-primary btn-sm">
-
-                <i class="fas fa-save"></i>
-
-            </button>
-
-        </form>
-
+        <div class="d-flex align-items-center gap-2">
+            <form
+                method="POST"
+                action="{% url 'user_role_update' user.id %}"
+                class="d-flex gap-2">
+                {% csrf_token %}
+                <select
+                    class="form-select form-select-sm"
+                    name="role"
+                    style="min-width: 120px; border-radius: 8px;">
+                    <option value="EMPLOYEE"
+                        {% if user.role == "EMPLOYEE" %}selected{% endif %}>
+                        Employee
+                    </option>
+                    <option value="MANAGER"
+                        {% if user.role == "MANAGER" %}selected{% endif %}>
+                        Manager
+                    </option>
+                    <option value="ADMIN"
+                        {% if user.role == "ADMIN" %}selected{% endif %}>
+                        Administrator
+                    </option>
+                </select>
+                <button
+                    class="btn btn-primary btn-sm"
+                    title="Save Role"
+                    style="border-radius: 8px;">
+                    <i class="fas fa-save"></i>
+                </button>
+            </form>
+            
+            {% if user.id != request.user.id %}
+            <form
+                method="POST"
+                action="{% url 'user_delete' user.id %}"
+                onsubmit="return confirm('Are you sure you want to delete employee {{ user.username }}?');">
+                {% csrf_token %}
+                <button class="btn btn-danger btn-sm" title="Delete Employee" style="border-radius: 8px;">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </form>
+            {% endif %}
+        </div>
     </td>
 
 </tr>

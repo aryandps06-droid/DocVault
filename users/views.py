@@ -70,4 +70,22 @@ class UserRoleUpdateGateway(LoginRequiredMixin, View):
             )
 
         return redirect("user_list")
+
+
+class UserDeleteView(LoginRequiredMixin, View):
+
+    def post(self, request, user_id):
+        if request.user.id == user_id:
+            messages.error(request, "You cannot delete your own account.")
+            return redirect("user_list")
+
+        target_user = get_object_or_404(User, id=user_id)
+        username = target_user.username
+        target_user.delete()
+
+        messages.success(
+            request,
+            f"Employee {username} has been deleted successfully."
+        )
+        return redirect("user_list")
     
