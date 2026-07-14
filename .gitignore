@@ -22,3 +22,6 @@ venv.bak/
 .idea/
 *.swp
 *.swo
+
+# Local debug and scratch directories
+scratch/

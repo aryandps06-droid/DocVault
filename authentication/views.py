@@ -37,13 +37,23 @@ class LoginWorkspaceView(View):
         
         # Fallback: if username is an email address, try fetching the user by email
         if user is None and '@' in username:
-            email_user = User.objects.filter(email=username.lower()).first()
-            if email_user:
+            email_users = User.objects.filter(email=username.lower())
+            for email_user in email_users:
                 user = authenticate(request, username=email_user.username, password=password)
+                if user is not None:
+                    break
                 
         if user is not None:
             login(request, user)
             messages.success(request, f"Welcome back, {user.username}!")
+            
+            # Respect the next redirect parameter if present and safe
+            next_url = request.GET.get("next") or request.POST.get("next")
+            if next_url:
+                from django.utils.http import url_has_allowed_host_and_scheme
+                if url_has_allowed_host_and_scheme(url=next_url, allowed_hosts={request.get_host()}):
+                    return redirect(next_url)
+                    
             return redirect("dashboard")
         else:
             messages.error(request, "Invalid username or password.")
