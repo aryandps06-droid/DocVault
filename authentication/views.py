@@ -87,12 +87,34 @@ class RegisterWorkspaceView(View):
             # Allow multiple user accounts with the same email
             pass
                 
-            # Skip OTP verification, set session verification directly and render profile setup
-            request.session["reg_email"] = email
-            request.session["reg_email_verified"] = True
+            # Generate 6-digit OTP
+            otp_code = f"{random.randint(100000, 999999)}"
             
-            form = SecureRegisterForm(initial={'email': email})
-            return render(request, self.template_name, {"step": 3, "email": email, "form": form})
+            # Store in session
+            request.session["reg_otp"] = otp_code
+            request.session["reg_otp_time"] = time.time()
+            request.session["reg_email"] = email
+            
+            # DEMO FALLBACK: Print to console
+            print("="*50)
+            print(f" MAGIC REGISTRATION CODE FOR {email}: {otp_code} ")
+            print("="*50)
+            
+            # Send Email
+            try:
+                send_mail(
+                    subject="DocVault - Verify Your Email",
+                    message=f"Hello,\n\nYour DocVault registration verification code is: {otp_code}\n\nThis code will expire in 10 minutes.\n\nThank you.",
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[email],
+                    fail_silently=False,
+                )
+                messages.info(request, f"We've sent a 6-digit code to {email}")
+            except Exception as e:
+                print(f"Error sending email: {e}")
+                messages.warning(request, f"Email failed to send. Developer Bypass: Your code is {otp_code}")
+                
+            return render(request, self.template_name, {"step": 2, "email": email})
             
         # Step 2: User submits the OTP
         elif step == "2":
@@ -182,11 +204,40 @@ class ForgotPasswordView(View):
                 messages.error(request, "Please enter a valid email address.")
                 return render(request, self.template_name, {"step": 1})
                 
-            # Skip OTP verification, set session verification directly and render password reset
-            request.session["reset_email"] = email
-            request.session["reset_email_verified"] = True
+            user = User.objects.filter(email=email).first()
+            if not user:
+                # Still show success to prevent email enumeration attacks
+                messages.info(request, f"If an account exists, a recovery code was sent to {email}")
+                return render(request, self.template_name, {"step": 2, "email": email})
+                
+            # Generate 6-digit OTP
+            otp_code = f"{random.randint(100000, 999999)}"
             
-            return render(request, self.template_name, {"step": 3, "email": email})
+            # Store in session
+            request.session["reset_otp"] = otp_code
+            request.session["reset_otp_time"] = time.time()
+            request.session["reset_email"] = email
+            
+            # DEMO FALLBACK: Print to console
+            print("="*50)
+            print(f" MAGIC RESET CODE FOR {email}: {otp_code} ")
+            print("="*50)
+            
+            # Send Email
+            try:
+                send_mail(
+                    subject="DocVault - Password Reset Code",
+                    message=f"Hello,\n\nYour DocVault password reset code is: {otp_code}\n\nThis code will expire in 10 minutes.\n\nThank you.",
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[email],
+                    fail_silently=False,
+                )
+                messages.info(request, f"We've sent a 6-digit code to {email}")
+            except Exception as e:
+                print(f"Error sending email: {e}")
+                messages.warning(request, f"Email failed to send. Developer Bypass: Your code is {otp_code}")
+                
+            return render(request, self.template_name, {"step": 2, "email": email})
             
         # Step 2: User submits the OTP
         elif step == "2":
