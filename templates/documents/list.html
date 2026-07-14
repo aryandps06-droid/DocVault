@@ -523,12 +523,26 @@ document.addEventListener("DOMContentLoaded", function () {
         fileInput.addEventListener("change", function(){
 
             if(this.files.length){
+                const file = this.files[0];
+                const maxSize = 4.5 * 1024 * 1024; // 4.5 MB limit
+                
+                if (file.size > maxSize) {
+                    if (window.ToastEngine) {
+                        window.ToastEngine.show("File too large! Max file size allowed on Vercel is 4.5 MB.", "danger");
+                    } else {
+                        alert("File is too large! Maximum file size allowed on Vercel is 4.5 MB.");
+                    }
+                    this.value = ""; // Clear file
+                    const btn = document.querySelector("button[type='submit']");
+                    btn.innerHTML = '<i class="fas fa-upload me-2"></i>Upload';
+                    return;
+                }
 
                 const btn = document.querySelector("button[type='submit']");
 
                 btn.innerHTML =
                     '<i class="fas fa-check-circle me-2"></i>' +
-                    this.files[0].name;
+                    file.name;
 
             }
 
