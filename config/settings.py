@@ -125,7 +125,7 @@ import dj_database_url
 # Database Tier - Scalable Core mapping
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}" if 'VERCEL' not in os.environ else "sqlite:////tmp/db.sqlite3"
+        default="postgres://0d48065f5649bbc828f13fd5b9c99b6ac5beea98f835276e42886c0d0c442d55:sk_vWyHogTDjaqaZd6JhmGPe@db.prisma.io:5432/postgres?sslmode=require"
     )
 }
 
