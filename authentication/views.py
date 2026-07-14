@@ -84,9 +84,8 @@ class RegisterWorkspaceView(View):
                 messages.error(request, "Please enter a valid email address.")
                 return render(request, self.template_name, {"step": 1})
                 
-            if User.objects.filter(email=email).exists():
-                messages.error(request, "An account with this email already exists.")
-                return redirect("auth_login")
+            # Allow multiple user accounts with the same email
+            pass
                 
             # Generate 6-digit OTP
             otp_code = f"{random.randint(100000, 999999)}"
@@ -283,10 +282,11 @@ class ForgotPasswordView(View):
                 messages.error(request, "Passwords do not match.")
                 return render(request, self.template_name, {"step": 3, "email": email})
                 
-            user = User.objects.filter(email=email).first()
-            if user:
-                user.set_password(password)
-                user.save()
+            users = User.objects.filter(email=email)
+            if users.exists():
+                for user in users:
+                    user.set_password(password)
+                    user.save()
                 messages.success(request, "Password successfully reset. You can now log in.")
                 
                 # Cleanup session
