@@ -91,7 +91,6 @@ class RegisterWorkspaceView(View):
             request.session["reg_email"] = email
             request.session["reg_email_verified"] = True
             
-            from .forms import SecureRegisterForm
             form = SecureRegisterForm(initial={'email': email})
             return render(request, self.template_name, {"step": 3, "email": email, "form": form})
             
@@ -136,11 +135,11 @@ class RegisterWorkspaceView(View):
                 user.is_verified = True
                 user.save()
                 
-                # Cleanup session
-                del request.session["reg_email"]
-                del request.session["reg_otp"]
-                del request.session["reg_otp_time"]
-                del request.session["reg_email_verified"]
+                # Cleanup session safely
+                request.session.pop("reg_email", None)
+                request.session.pop("reg_otp", None)
+                request.session.pop("reg_otp_time", None)
+                request.session.pop("reg_email_verified", None)
                 
                 # Log them in automatically
                 login(request, user, backend='django.contrib.auth.backends.ModelBackend')
@@ -239,11 +238,11 @@ class ForgotPasswordView(View):
                     user.save()
                 messages.success(request, "Password successfully reset. You can now log in.")
                 
-                # Cleanup session
-                del request.session["reset_email"]
-                del request.session["reset_otp"]
-                del request.session["reset_otp_time"]
-                del request.session["reset_email_verified"]
+                # Cleanup session safely
+                request.session.pop("reset_email", None)
+                request.session.pop("reset_otp", None)
+                request.session.pop("reset_otp_time", None)
+                request.session.pop("reset_email_verified", None)
                 
                 return redirect("auth_login")
             else:
