@@ -55,9 +55,18 @@ class DocumentUploadGatewayView(LoginRequiredMixin, View):
             except Department.DoesNotExist:
                 pass
 
+        import base64
+        try:
+            file_content = uploaded_file.read()
+            uploaded_file.seek(0)
+            file_base64_str = base64.b64encode(file_content).decode('utf-8')
+        except Exception:
+            file_base64_str = ""
+
         doc = Document.objects.create(
             title=title,
             file=uploaded_file,
+            file_base64=file_base64_str,
             uploader=request.user,
             department=assigned_department,
             ai_status="QUEUED"
@@ -114,11 +123,11 @@ class DocumentDetailWorkspaceOverview(LoginRequiredMixin, View):
 
         document = get_object_or_404(Document, id=doc_id)
 
-        # Check if the file physically exists on the current serverless instance node
+        # Check if the file physically exists on the current serverless instance node, or we have the Base64 data in DB
         import os
         file_exists = False
         try:
-            if document.file and os.path.exists(document.file.path):
+            if (document.file and os.path.exists(document.file.path)) or document.file_base64:
                 file_exists = True
         except Exception:
             pass
@@ -142,3 +151,51 @@ class DocumentDeleteView(LoginRequiredMixin, View):
         else:
             messages.error(request, "You do not have permission to delete this document.")
         return redirect('document_list')
+
+
+class ServeDocumentView(LoginRequiredMixin, View):
+    def get(self, request, doc_id):
+        import base64
+        import os
+        from django.http import HttpResponse, Http404
+        
+        document = get_object_or_404(Document, id=doc_id)
+        
+        if not document.file_base64:
+            # Fallback to local file if base64 data is not in DB
+            if document.file and os.path.exists(document.file.path):
+                with open(document.file.path, 'rb') as f:
+                    file_data = f.read()
+            else:
+                raise Http404("Document file content not found.")
+        else:
+            try:
+                file_data = base64.b64decode(document.file_base64)
+            except Exception:
+                raise Http404("Corrupted file data.")
+                
+        # Determine content type based on file name
+        ext = os.path.splitext(document.file.name)[1].lower()
+        if ext == '.pdf':
+            content_type = 'application/pdf'
+        elif ext in ['.jpg', '.jpeg']:
+            content_type = 'image/jpeg'
+        elif ext == '.png':
+            content_type = 'image/png'
+        elif ext == '.gif':
+            content_type = 'image/gif'
+        elif ext == '.webp':
+            content_type = 'image/webp'
+        else:
+            content_type = 'application/octet-stream'
+            
+        response = HttpResponse(file_data, content_type=content_type)
+        
+        # Download or inline preview
+        filename = document.file.name.split('/')[-1]
+        if request.GET.get('download') == '1':
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        else:
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
+            
+        return response

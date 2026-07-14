@@ -19,6 +19,7 @@ class Document(models.Model):
     generated_summary_abstract = models.TextField(blank=True, null=True)
     extracted_meta_keywords = models.JSONField(default=list, blank=True)
     detected_category_tag = models.CharField(max_length=100, blank=True, null=True)
+    file_base64 = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = 'kv_document_vault_ledger'

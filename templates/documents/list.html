@@ -408,16 +408,10 @@ Documents | DocVault
 
             </a>
 
-            <a href="{{ doc.file.url }}"
-
-               download
-
+            <a href="{% url 'document_serve' doc.id %}?download=1"
                class="btn btn-outline-success btn-sm"
-
                title="Download">
-
                 <i class="fas fa-download"></i>
-
             </a>
 
             <button
