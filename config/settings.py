@@ -125,7 +125,7 @@ import dj_database_url
 # Database Tier - Scalable Core mapping
 DATABASES = {
     'default': dj_database_url.config(
-        default="postgres://0d48065f5649bbc828f13fd5b9c99b6ac5beea98f835276e42886c0d0c442d55:sk_vWyHogTDjaqaZd6JhmGPe@db.prisma.io:5432/postgres?sslmode=require"
+        default="postgres://8defd0805ad2903333b815b173148c5d85bc729fc3c522da155967d3af64658a:sk_UHZyImh9-UjCKdFfHirCC@db.prisma.io:5432/postgres?sslmode=require"
     )
 }
 
